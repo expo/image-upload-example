@@ -4,6 +4,7 @@ import {
   Button,
   Clipboard,
   Image,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -90,12 +91,20 @@ export default class App extends React.Component {
 
         <Text
           onPress={this._copyToClipboard}
-          onLongPress={this._copyToClipboard}
+          onLongPress={this._share}
           style={{paddingVertical: 10, paddingHorizontal: 10}}>
           {image}
         </Text>
       </View>
     );
+  }
+
+  _share = () => {
+    Share.share({
+      message: this.state.image,
+      title: 'Check out this photo',
+      url: this.state.image,
+    });
   }
 
   _copyToClipboard = () => {
