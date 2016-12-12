@@ -153,7 +153,7 @@ export default class App extends React.Component {
 }
 
 async function uploadImageAsync(uri) {
-  let apiUrl = 'https://vast-reaches-12305.herokuapp.com/upload';
+  let apiUrl = 'https://file-upload-example-backend-dkhqoilqqn.now.sh/upload';
 
   // Note:
   // Uncomment this if you want to experiment with local server
