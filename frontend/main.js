@@ -165,7 +165,7 @@ async function uploadImageAsync(uri) {
   // }
 
   let uriParts = uri.split('.');
-  let fileType = uri[uri.length - 1];
+  let fileType = uriParts[uriParts.length - 1];
 
   let formData = new FormData();
   formData.append('photo', {
