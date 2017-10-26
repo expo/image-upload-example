@@ -5,47 +5,56 @@ import {
   Clipboard,
   Image,
   Share,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Exponent, { Constants, ImagePicker, registerRootComponent } from 'expo';
+import Expo, { Constants, FileSystem, ImagePicker, registerRootComponent } from 'expo';
 
 export default class App extends React.Component {
   state = {
     image: null,
+    uploadedImage: null,
     uploading: false,
   };
+
+  async componentWillMount() {
+    let { uri } = await FileSystem.downloadAsync(
+      'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png',
+      FileSystem.documentDirectory + 'demo.png'
+    );
+
+    this.setState({image: uri});
+  }
 
   render() {
     let { image } = this.state;
 
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text
-          style={{
-            fontSize: 20,
-            marginBottom: 20,
-            textAlign: 'center',
-            marginHorizontal: 15,
-          }}>
-          Example: Upload ImagePicker result
-        </Text>
+      <View style={{flex: 1}}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{paddingTop: 40, alignItems: 'center', paddingBottom: 20}}>
+          <Text
+            style={{
+              fontSize: 20,
+              marginBottom: 20,
+              textAlign: 'center',
+              marginHorizontal: 15,
+            }}>
+            Example: Upload from FileSystem
+          </Text>
 
-        <Button
-          onPress={this._pickImage}
-          title="Pick an image from camera roll"
-        />
+          {this.state.image ? <Button onPress={this._uploadImage} title="Upload this image" /> : null}
 
-        <Button onPress={this._takePhoto} title="Take a photo" />
+          {this._maybeRenderImage(this.state.image)}
+          {this._maybeRenderImage(this.state.uploadedImage)}
 
-        {this._maybeRenderImage()}
+        </ScrollView>
         {this._maybeRenderUploadingOverlay()}
-
         <StatusBar barStyle="default" />
-      </View>
+    </View>
     );
   }
 
@@ -67,8 +76,7 @@ export default class App extends React.Component {
     }
   };
 
-  _maybeRenderImage = () => {
-    let { image } = this.state;
+  _maybeRenderImage = (image) => {
     if (!image) {
       return;
     }
@@ -104,48 +112,20 @@ export default class App extends React.Component {
     );
   };
 
-  _share = () => {
-    Share.share({
-      message: this.state.image,
-      title: 'Check out this photo',
-      url: this.state.image,
-    });
-  };
-
   _copyToClipboard = () => {
     Clipboard.setString(this.state.image);
     alert('Copied image URL to clipboard');
   };
 
-  _takePhoto = async () => {
-    let pickerResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    this._handleImagePicked(pickerResult);
-  };
-
-  _pickImage = async () => {
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    this._handleImagePicked(pickerResult);
-  };
-
-  _handleImagePicked = async pickerResult => {
+  _uploadImage = async () => {
     let uploadResponse, uploadResult;
 
     try {
       this.setState({ uploading: true });
 
-      if (!pickerResult.cancelled) {
-        uploadResponse = await uploadImageAsync(pickerResult.uri);
-        uploadResult = await uploadResponse.json();
-        this.setState({ image: uploadResult.location });
-      }
+      uploadResponse = await uploadImageAsync(this.state.image);
+      uploadResult = await uploadResponse.json();
+      this.setState({ uploadedImage: uploadResult.location });
     } catch (e) {
       console.log({ uploadResponse });
       console.log({ uploadResult });
@@ -166,7 +146,7 @@ async function uploadImageAsync(uri) {
   // if (Constants.isDevice) {
   //   apiUrl = `https://your-ngrok-subdomain.ngrok.io/upload`;
   // } else {
-  //   apiUrl = `http://localhost:3000/upload`
+    apiUrl = `http://localhost:3000/upload`
   // }
 
   let uriParts = uri.split('.');
