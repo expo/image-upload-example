@@ -32,9 +32,25 @@ const upload = multer({
 const app = require('express')();
 const http = require('http').Server(app);
 
-app.post('/upload', upload.single('photo'), (req, res, next) => {
-  res.json(req.file)
-})
+// HACK - react-native generates FormData with an invalid boundary that might contain '/'
+// we need to wrap the boundary value with quotes to fix it
+// TODO - remove this when react-native releases the fix
+const re = /^multipart\/form-data.\s?boundary=['"]?(.*?)['"]?$/i;
+app.post(
+  '/upload',
+  // <https://github.com/facebook/react-native/issues/7564#issuecomment-266323928>
+  (req, res, next) => {
+    const contentType = req.headers['content-type'];
+    const match = re.exec(contentType);
+    if (match && match.length === 2)
+      req.headers['content-type'] = 'multipart/form-data; boundary="' + match[1] + '"';
+    next();
+  },
+  upload.single('photo'),
+  (req, res, next) => {
+    res.json(req.file)
+  }
+)
 
 let port = process.env.PORT || 3000;
 http.listen(port, () => {
