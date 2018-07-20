@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -11,16 +11,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Exponent, { Constants, ImagePicker, registerRootComponent } from 'expo';
+import Exponent, { Constants, ImagePicker, Permissions, registerRootComponent } from 'expo';
 
-export default class App extends React.Component {
-  state = {
-    image: null,
-    uploading: false,
-  };
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      image: null,
+      uploading: false,
+    };
+
+    // bind(s)
+    this.allowPermission = this.allowPermission.bind(this);
+  }
 
   render() {
-    let { image } = this.state;
+    let {
+      image
+    } = this.state;
 
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -47,6 +56,29 @@ export default class App extends React.Component {
         <StatusBar barStyle="default" />
       </View>
     );
+  }
+
+  async allowPermission(type) {
+    const {
+      status: existingStatus
+    } = await Permissions.getAsync(
+      Permissions[type]
+    );
+
+    let finalStatus = existingStatus;
+
+    // only ask if permissions have not already been determined, because
+    // iOS won't necessarily prompt the user a second time.
+    if (existingStatus !== 'granted') {
+      // android remote notification permissions are granted during the app
+      // install, so this will only ask on iOS
+      const {
+        status
+      } = await Permissions.askAsync(Permissions[type]);
+      finalStatus = status;
+    }
+
+    return finalStatus === 'granted';
   }
 
   _maybeRenderUploadingOverlay = () => {
@@ -118,21 +150,32 @@ export default class App extends React.Component {
   };
 
   _takePhoto = async () => {
-    let pickerResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
+    let permCamera = await this.allowPermission('CAMERA');
+    let permCameraRoll = await this.allowPermission('CAMERA_ROLL');
 
-    this._handleImagePicked(pickerResult);
+    // only if user allows permission to camera AND camera roll
+    if (permCamera && permCameraRoll) {
+      let pickerResult = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+      });
+
+      this._handleImagePicked(pickerResult);
+    }
   };
 
   _pickImage = async () => {
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
+    let permCameraRoll = await this.allowPermission('CAMERA_ROLL');
 
-    this._handleImagePicked(pickerResult);
+    // only if user allows permission to camera roll
+    if (permCameraRoll) {
+      let pickerResult = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+      });
+
+      this._handleImagePicked(pickerResult);
+    }
   };
 
   _handleImagePicked = async pickerResult => {
