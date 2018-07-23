@@ -46,29 +46,6 @@ export default class App extends Component {
     );
   }
 
-  async allowPermission(type) {
-    const {
-      status: existingStatus
-    } = await Permissions.getAsync(
-      Permissions[type]
-    );
-
-    let finalStatus = existingStatus;
-
-    // only ask if permissions have not already been determined, because
-    // iOS won't necessarily prompt the user a second time.
-    if (existingStatus !== 'granted') {
-      // android remote notification permissions are granted during the app
-      // install, so this will only ask on iOS
-      const {
-        status
-      } = await Permissions.askAsync(Permissions[type]);
-      finalStatus = status;
-    }
-
-    return finalStatus === 'granted';
-  }
-
   _maybeRenderUploadingOverlay = () => {
     if (this.state.uploading) {
       return (
@@ -121,11 +98,16 @@ export default class App extends Component {
   };
 
   _takePhoto = async () => {
-    let permCamera = await this.allowPermission('CAMERA');
-    let permCameraRoll = await this.allowPermission('CAMERA_ROLL');
+    const {
+      status: cameraPerm
+    } = await Permissions.askAsync(Permissions.CAMERA);
+
+    const {
+      status: cameraRollPerm
+    } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
     // only if user allows permission to camera AND camera roll
-    if (permCamera && permCameraRoll) {
+    if (cameraPerm === 'granted' && cameraRollPerm === 'granted') {
       let pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
@@ -136,10 +118,12 @@ export default class App extends Component {
   };
 
   _pickImage = async () => {
-    let permCameraRoll = await this.allowPermission('CAMERA_ROLL');
+    const {
+      status: cameraRollPerm
+    } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
     // only if user allows permission to camera roll
-    if (permCameraRoll) {
+    if (cameraRollPerm === 'granted') {
       let pickerResult = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         aspect: [4, 3],
