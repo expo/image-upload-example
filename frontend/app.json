@@ -1,17 +1,18 @@
 {
   "expo": {
     "name": "image-upload-example",
-    "description": "Demonstration of how to upload images from the ImagePicker, using a node backend to upload to S3",
+    "description": "demo of how to upload images from the ImagePicker, using a node backend to upload to AWS S3",
+    "scheme": "image-upload-example",
     "slug": "image-upload-example",
-    "sdkVersion": "29.0.0",
+    "privacy": "public",
+    "sdkVersion": "32.0.0",
     "version": "1.0.0",
+    "platforms": ["ios", "android"],
+    "githubUrl": "https://github.com/expo/image-upload-example",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "packagerOpts": {
-      "assetExts": [
-        "ttf",
-        "mp4"
-      ]
+      "assetExts": ["mp4", "ttf"]
     },
     "ios": {
       "supportsTablet": true

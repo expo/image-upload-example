@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -9,11 +9,11 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Constants, ImagePicker, Permissions } from 'expo';
 
-export default class App extends Component {
+export default class App extends React.Component {
   state = {
     image: null,
     uploading: false,
