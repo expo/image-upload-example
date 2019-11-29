@@ -58,8 +58,6 @@ export default function App() {
   });
 
   const takePhoto = useCallback(async () => {
-    console.log(image);
-
     const { status: cameraPerm } = await Permissions.askAsync(
       Permissions.CAMERA
     );
