@@ -3,7 +3,7 @@
     "name": "image-upload-example",
     "description": "Demonstration of how to upload images from the ImagePicker, using a node backend to upload to S3",
     "slug": "image-upload-example",
-    "sdkVersion": "29.0.0",
+    "sdkVersion": "48.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
@@ -14,7 +14,7 @@
       ]
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
     }
   }
 }
