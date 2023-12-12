@@ -8,21 +8,17 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import { Constants, ImagePicker, Permissions } from 'expo';
+import * as ImagePicker from 'expo-image-picker';
 
 export default class App extends Component {
   state = {
     image: null,
     uploading: false,
   };
-
+  
   render() {
-    let {
-      image
-    } = this.state;
 
     return (
       <View style={styles.container}>
@@ -45,6 +41,8 @@ export default class App extends Component {
       </View>
     );
   }
+
+
 
   _maybeRenderUploadingOverlay = () => {
     if (this.state.uploading) {
@@ -98,38 +96,36 @@ export default class App extends Component {
   };
 
   _takePhoto = async () => {
-    const {
-      status: cameraPerm
-    } = await Permissions.askAsync(Permissions.CAMERA);
+    try {
+      const status = await ImagePicker.requestCameraPermissionsAsync();
 
-    const {
-      status: cameraRollPerm
-    } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
-    // only if user allows permission to camera AND camera roll
-    if (cameraPerm === 'granted' && cameraRollPerm === 'granted') {
-      let pickerResult = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-      });
-
-      this._handleImagePicked(pickerResult);
+      if(status?.granted){
+        let pickerResult = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+        });
+        console.log('pickerResult: ' , pickerResult);
+        this._handleImagePicked(pickerResult);
+      }
+    } catch (e) {
+      console.log('pickerResult: ' , e);
     }
   };
 
   _pickImage = async () => {
-    const {
-      status: cameraRollPerm
-    } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-    // only if user allows permission to camera roll
-    if (cameraRollPerm === 'granted') {
-      let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-      });
+    console.log(result);
 
-      this._handleImagePicked(pickerResult);
+    if (!result.canceled) {
+      this.setState({image: result.assets[0].uri});
+      this._handleImagePicked(result.assets[0].uri);
     }
   };
 
@@ -141,8 +137,8 @@ export default class App extends Component {
         uploading: true
       });
 
-      if (!pickerResult.cancelled) {
-        uploadResponse = await uploadImageAsync(pickerResult.uri);
+      if (!pickerResult.canceled) {
+        uploadResponse = await uploadImageAsync(pickerResult.assets?.uri);
         uploadResult = await uploadResponse.json();
 
         this.setState({
