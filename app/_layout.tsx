@@ -19,7 +19,7 @@ export default function RootLayout() {
         screenOptions={{
           headerLargeTitle: true,
 
-          headerTransparent: true,
+          headerTransparent: process.env.EXPO_OS === "ios",
           headerBlurEffect: "systemChromeMaterial",
           headerShadowVisible: true,
           headerLargeTitleShadowVisible: false,
