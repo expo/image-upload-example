@@ -23,10 +23,13 @@ export default function RootLayout() {
           headerBlurEffect: "systemChromeMaterial",
           headerShadowVisible: true,
           headerLargeTitleShadowVisible: false,
-          headerStyle: {
-            // Hack to ensure the collapsed small header shows the shadow / border.
-            backgroundColor: "rgba(255,255,255,0.01)",
-          },
+          headerStyle:
+            process.env.EXPO_OS === "ios"
+              ? {
+                  // Hack to ensure the collapsed small header shows the shadow / border.
+                  backgroundColor: "rgba(255,255,255,0.01)",
+                }
+              : {},
           // @ts-expect-error
           headerLargeStyle: {
             backgroundColor: Colors.systemGroupedBackground, // Color of your background
