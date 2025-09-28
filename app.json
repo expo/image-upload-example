@@ -8,7 +8,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "web", "android"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -25,7 +25,7 @@
       "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [["expo-router", { "origin": "" }]],
+    "plugins": [],
     "experiments": {
       "typedRoutes": true
     }

@@ -1,6 +1,12 @@
 # Image upload with Expo API Routes
 
-This is an [Expo Router](https://expo.dev) project to demonstrate choosing media from the device and uploading it to a server.
+This is an Expo Router project that demonstrates choosing images and videos from the device, then uploading them to a server.
+
+Expo uses the web APIs [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) and [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData) APIs to upload media to an API route.
+
+Getting the media to an API route as soon as possible is recommended as most services and tools have good server support, and it reduces the chance of bugs from device-specific quirks.
+
+The `FormData` approach is optimal as it avoids slow base64 string conversions and memory issues on low-end devices. It works by referencing a local file URL, which is then streamed to the server. From the server, you can access the raw bytes of the file.
 
 - Pick an image or video with [`ImagePicker`](https://docs.expo.dev/versions/latest/sdk/imagepicker/).
 - Upload the media with built-in `fetch` and `FormData` APIs.
@@ -12,7 +18,7 @@ This is an [Expo Router](https://expo.dev) project to demonstrate choosing media
 1. Install dependencies
 
    ```bash
-   npm install
+   bun install
    ```
 
 2. Start the app
@@ -30,6 +36,41 @@ You can run the app on iOS, Android, and the web:
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Snippets
+
+Uploading a local file to a server on native platforms:
+
+```ts
+import { File } from "expo-file-system";
+
+const result = await ImagePicker.launchImageLibraryAsync();
+
+const formData = new FormData();
+formData.append(`photo`, new File(result.assets[0].uri));
+
+const response = await fetch("/api/img", {
+  method: "POST",
+  body: formData,
+  headers: { Accept: "application/json" },
+});
+```
+
+Accessing the uploaded file on the server as a `File` object, `ArrayBuffer`, and `Buffer`:
+
+```ts
+export async function POST(req: Request) {
+  const formData = await req.formData();
+
+  const file = formData.get("photo") as File;
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  return Response.json({ file, arrayBuffer, buffer });
+}
+```
+
+Uploading `File` requires using `fetch` from `expo/fetch` as the React Native `fetch` does not support it. The polyfill is included in `utils/fetch-polyfill.ts`.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
@@ -43,3 +84,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+```
+
+```
