@@ -71,6 +71,14 @@ export async function POST(req: Request) {
 
 Uploading `File` requires using `fetch` from `expo/fetch` as the React Native `fetch` does not support it. The polyfill is included in `utils/fetch-polyfill.ts`.
 
+## Modern Settings
+
+React Native has very limited support for web APIs. We're working on building replacement APIs such as fetch and FormData but these are currently opt-in.
+
+- Enable relative fetch requests: Add the `EXPO_UNSTABLE_DEPLOY_SERVER=1` environment variable to your development environment. This enables relative fetch requests like `fetch('/api/hello')`. When you create production build, the server is deployed and linked to the fetch API automatically. Alternatively, you can use absolute URLs like `fetch('https://mydomain.com/api/hello')` for each request, just be sure to switch the URLs between production and development.
+- Use `expo/fetch` polyfill: React Native's fetch does not support `File` objects or streaming, it also uses base64 strings which are much slower for files as you must convert back and forth from binary data to strings. To use `File` objects, you must use the `fetch` polyfill from `expo/fetch`. This is included in `utils/fetch-polyfill.ts`. You can import this file at the top of your app to replace the global fetch with the polyfill.
+- Use `File` from `expo-file-system`: Use the `File` class from `expo-file-system` to create `File` objects from local URIs.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
