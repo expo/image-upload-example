@@ -1,5 +1,3 @@
-// import "@/utils/fetch-polyfill";
-
 import {
   DarkTheme,
   DefaultTheme,
