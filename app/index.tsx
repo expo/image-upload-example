@@ -19,7 +19,7 @@ function formDataFromImagePicker(result: ImagePicker.ImagePickerSuccessResult) {
       formData.append(
         `photo.${index}`,
         // Avoid using base64, but some APIs only return base64 so we support it.
-        base64ToFile(asset.base64, asset.fileName)
+        base64ToFile(asset.base64, asset.fileName),
       );
     } else {
       formData.append(
@@ -27,7 +27,7 @@ function formDataFromImagePicker(result: ImagePicker.ImagePickerSuccessResult) {
         // asset.file is returned on web only as of SDK 54.
         asset.file ??
           // We can create a File from the URI on native.
-          new File(asset.uri)
+          new File(asset.uri),
       );
     }
 
@@ -45,7 +45,6 @@ async function pickImage(options: ImagePicker.ImagePickerOptions) {
     ...options,
   });
   if (!result.canceled) {
-    console.log(result.assets[0].file);
     // Upload the image to the API route.
     const response = await fetch("/api/img", {
       method: "POST",
@@ -62,7 +61,7 @@ export default function HomeScreen() {
   const [results, setResults] = React.useState<string | null>(null);
 
   const pickImageWithResults = async (
-    options: ImagePicker.ImagePickerOptions
+    options: ImagePicker.ImagePickerOptions,
   ) => {
     const result = await pickImage(options);
 

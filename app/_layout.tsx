@@ -1,4 +1,4 @@
-import "@/utils/fetch-polyfill";
+// import "@/utils/fetch-polyfill";
 
 import {
   DarkTheme,
